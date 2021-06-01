@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.elasticdeployment.name }}
+  namespace: {{ .Values.namespace.name }}
+spec:
+  selector:
+    matchLabels:
+      component:  {{ .Values.elasticdeployment.name }}
+  template:
+    metadata:
+      labels:
+        component:  {{ .Values.elasticdeployment.name }}
+    spec:
+      containers:
+      - name:  {{ .Values.elasticdeployment.name }}
+        image: {{ .Values.elasticimage.repository }}:{{ .Values.elasticimage.tag | default .Chart.AppVersion }}
+        env:
+        - name: discovery.type
+          value: single-node
+        ports:
+        - containerPort: {{ .Values.elasticservice.containerPort }}
+          name: http
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 500m
+            memory: 2Gi
+          requests:
+            cpu: 500m
+            memory: 1Gi
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name:  {{ .Values.elasticdeployment.name }}
+  namespace: {{ .Values.namespace.name }}
+  labels:
+    service:  {{ .Values.elasticdeployment.name }}
+spec:
+  type: {{ .Values.elasticservice.type }}
+  selector:
+    component:  {{ .Values.elasticdeployment.name }}
+  ports:
+  - port: {{ .Values.elasticservice.port }}
+    targetPort: {{ .Values.elasticservice.targetPort }}

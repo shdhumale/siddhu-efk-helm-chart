@@ -1,0 +1,129 @@
+# Default values for siddhu-efk-helm-chart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+
+# imagePullSecrets: []
+# nameOverride: ""
+# fullnameOverride: ""
+
+#serviceAccount:
+#  # Specifies whether a service account should be created
+#  create: true
+#  # Annotations to add to the service account
+#  annotations: {}
+#  # The name of the service account to use.
+#  # If not set and create is true, a name is generated using the fullname template
+#  name: ""
+
+# podAnnotations: {}
+
+# podSecurityContext: {}
+#   # fsGroup: 2000
+
+# securityContext: {}
+#   # capabilities:
+#   #   drop:
+#   #   - ALL
+#   # readOnlyRootFilesystem: true
+#   # runAsNonRoot: true
+#   # runAsUser: 1000
+
+
+
+ingress:
+  enabled: false
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths:
+      - path: /
+        backend:
+          serviceName: chart-example.local
+          servicePort: 80
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+#by siddhu start[
+namespace:
+  name: kube-logging 
+springbootdeployment:
+  name: siddhuspringboot  
+image:
+  repository: shdhumale/efk-springboot-docker-kubernetes
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "latest"
+
+service:
+  type: NodePort #by siddhu give the nodeport so that we can access it from out side.  
+  port: 9898 #by siddhu expose to node 
+  targetPort: 9898 #by siddhu App server listening on this port  
+  containerPort: 9898
+
+elasticdeployment:
+  name: elasticsearch
+elasticimage:
+  repository: elasticsearch
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "7.3.2"  
+elasticservice:
+  type: NodePort #by siddhu give the nodeport so that we can access it from out side.  
+  port: 9200 #by siddhu expose to node 
+  targetPort: 9200 #by siddhu App server listening on this port  
+  containerPort: 9200  
+
+kibanadeployment:
+  name: kibana  
+kibanaimage:
+  repository: kibana
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "7.3.2"  
+kibanaservice:
+  type: NodePort #by siddhu give the nodeport so that we can access it from out side.  
+  port: 5601 #by siddhu expose to node 
+  targetPort: 5601 #by siddhu App server listening on this port  
+  containerPort: 5601   
+kibanaurl:
+  urlvalue: "http://elasticsearch:9200"   
+serviceaccount:
+  name: fluent-bit  
+fluentbitimage:
+  repository: fluent/fluent-bit
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "1.3.11"    
+#by siddhu start]

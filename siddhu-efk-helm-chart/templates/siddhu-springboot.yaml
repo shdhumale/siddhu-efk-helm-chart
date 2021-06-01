@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.springbootdeployment.name }}
+  namespace: {{ .Values.namespace.name }}
+spec:
+  selector:
+    matchLabels:
+      component: {{ .Values.springbootdeployment.name }}
+  template:
+    metadata:
+      labels:
+        component: {{ .Values.springbootdeployment.name }}
+    spec:
+      containers:
+      - name: {{ .Values.springbootdeployment.name }}
+        image: {{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}
+        env:
+        - name: discovery.type
+          value: single-node
+        ports:
+        - containerPort: {{ .Values.service.containerPort }}
+          name: http
+          protocol: TCP      
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.springbootdeployment.name }}
+  namespace: {{ .Values.namespace.name }}
+  labels:
+    service: {{ .Values.springbootdeployment.name }}
+spec:
+  type: {{ .Values.service.type }}
+  selector:
+    component: {{ .Values.springbootdeployment.name }}
+  ports:
+  - port: {{ .Values.service.port }}
+    targetPort: {{ .Values.service.targetPort }}

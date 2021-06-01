@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.kibanadeployment.name }}
+  namespace: {{ .Values.namespace.name }}
+spec:
+  selector:
+    matchLabels:
+      run: {{ .Values.kibanadeployment.name }}
+  template:
+    metadata:
+      labels:
+        run: {{ .Values.kibanadeployment.name }}
+    spec:
+      containers:
+      - name: {{ .Values.kibanadeployment.name }}
+        image: "{{ .Values.kibanaimage.repository }}:{{ .Values.kibanaimage.tag | default .Chart.AppVersion }}"
+        env:
+        - name: ELASTICSEARCH_URL
+          value: {{ .Values.kibanaurl.urlvalue }}
+        - name: XPACK_SECURITY_ENABLED
+          value: "true"
+        ports:
+        - containerPort: {{ .Values.kibanaservice.containerPort }}
+          name: http
+          protocol: TCP
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.kibanadeployment.name }}
+  namespace: {{ .Values.namespace.name }}
+  labels:
+    service: {{ .Values.kibanadeployment.name }}
+spec:
+  type: {{ .Values.kibanaservice.type }}
+  selector:
+    run: {{ .Values.kibanadeployment.name }}
+  ports:
+  - port: {{ .Values.kibanaservice.port }}
+    targetPort: {{ .Values.kibanaservice.targetPort }}
